@@ -11,15 +11,13 @@
         form.classList.add('input-group', 'mb-3');
         input.classList.add('form-control');
         inputDate.classList.add('form-control');
-        input.placeholder = "Введите данные студента";
+        input.placeholder = "Введите данные студента (ФИО, Факультет, Год поступления)";
         button.classList.add('btn', 'btn-primary');
         button.textContent = "Добавить студента";
         buttonWrapper.classList.add('input-group-append');
 
         buttonWrapper.append(button);
-        form.append(input);
-        form.append(inputDate);
-        form.append(buttonWrapper);
+        form.append(input, inputDate, buttonWrapper);
 
         input.addEventListener('input', function(e) {
             e.preventDefault();
@@ -61,8 +59,7 @@
 
         table.classList.add('table');
         head_table.append(first_row);
-        table.append(head_table);
-        table.append(body_table);
+        table.append(head_table, body_table);
 
         return {
             table,
@@ -73,8 +70,7 @@
     function createApp() {
         const user_form = createForm();
         const table = createTable();
-        document.body.append(user_form.form);
-        document.body.append(table.table);
+        document.body.append(user_form.form, table.table);
 
         user_form.form.addEventListener('submit', e => {
             e.preventDefault();
