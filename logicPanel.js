@@ -156,6 +156,10 @@
                 .trim()
                 .split(' ');
         }
+
+        function filter() {
+
+        }
     }
 
     createApp();
