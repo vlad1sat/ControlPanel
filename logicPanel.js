@@ -45,16 +45,22 @@
         const head_table = document.createElement('thead');
         const body_table = document.createElement('tbody');
         const first_row = document.createElement('tr');
-        let name = createInformationTable("ФИО");
+        let full_name = createInformationTable("ФИО");
         let faculty = createInformationTable("Факультет");
         let dateBorn = createInformationTable("Дата рождения и возраст");
         let yearStartEducation = createInformationTable("Годы обучения и номер курса");
 
         function createInformationTable(title) {
             const element = document.createElement('th');
-            element.textContent = title;
+            const buttonFilter = document.createElement('button');
+            buttonFilter.textContent = title;
+            buttonFilter.classList.add('btn');
+            element.append(buttonFilter);
             first_row.append(element);
-            return element;
+            return {
+                element,
+                buttonFilter
+            };
         }
 
         table.classList.add('table');
@@ -63,14 +69,18 @@
 
         return {
             table,
-            body_table
+            body_table,
+            full_name,
+            faculty,
+            dateBorn,
+            yearStartEducation
         };
     }
 
     function createApp() {
         const user_form = createForm();
-        const table = createTable();
-        document.body.append(user_form.form, table.table);
+        const createdTable = createTable();
+        document.body.append(user_form.form, createdTable.table);
 
         user_form.form.addEventListener('submit', e => {
             e.preventDefault();
@@ -90,28 +100,60 @@
             }
 
             let fullName = "";
-            for (let indexElement = 0; indexElement < user_information.length; indexElement++) {
-                if (indexElement <= 2) {
-                    if (indexElement !== 2) {
-                        fullName += user_information[indexElement] + ' ';
-                        continue
+            for (let indexElement = 0; indexElement < 3; indexElement++)
+                    fullName += user_information[indexElement] + ' ';
+
+            createInformation(fullName, row);
+            createInformation(user_information[3], row);
+            createYearUser(nowDate, row);
+            createEducationUser(user_information[4], nowDate, row);
+            createdTable.body_table.append(row);
+        })
+
+        createdTable.full_name.buttonFilter.addEventListener('click', () => sortTable(0, 'text'));
+        createdTable.faculty.buttonFilter.addEventListener('click', () => sortTable(1, 'text'));
+        createdTable.yearStartEducation.buttonFilter.addEventListener('click', () => sortTable(3, 'education'));
+
+        function sortTable(indexSort, sort) {
+            let rows, shouldSwitch;
+            let switching = true;
+            let index = 1;
+
+            while (switching) {
+                switching = false;
+                rows = document.querySelectorAll('tr');
+                for (index = 1; index < (rows.length - 1); index++) {
+                    shouldSwitch = false;
+                    let first_row = rows[index].getElementsByTagName('td')[indexSort];
+                    let second_row = rows[index + 1].getElementsByTagName('td')[indexSort];
+                    if (sort === 'text') {
+                        if (sortText(first_row, second_row)) {
+                            shouldSwitch = true;
+                            break;
+                        }
                     }
-                    else {
-                        fullName += user_information[indexElement];
-                        createInformation(fullName, row);
-                        continue
+                    if (sort === 'education') {
+                        if (sortYearEducation(first_row, second_row)) {
+                            shouldSwitch = true;
+                            break;
+                        }
                     }
                 }
-                if (indexElement === 4) {
-                    createYearUser(nowDate, row);
-                    createEducationUser(user_information[indexElement], nowDate, row);
-                    break
+                if (shouldSwitch) {
+                    rows[index].parentNode.insertBefore(rows[index + 1], rows[index]);
+                    switching = true;
                 }
-                createInformation(user_information[indexElement], row);
             }
 
-            table.body_table.append(row);
-        })
+            function sortText(first_row, second_row) {
+                return first_row.textContent.toLowerCase() > second_row.textContent.toLowerCase();
+            }
+
+            function sortYearEducation(first_row, second_row) {
+                return Number(first_row.textContent.split(' ')[0].split('-')[0])
+                > Number(second_row.textContent.split(' ')[0].split('-')[0]);
+            }
+        }
 
         function createYearUser(nowDate, row) {
             let age = nowDate.getFullYear() - user_form.inputDate.valueAsDate.getFullYear();
@@ -156,11 +198,8 @@
                 .trim()
                 .split(' ');
         }
-
-        function filter() {
-
-        }
     }
 
-    createApp();
+    document.addEventListener('DOMContentLoaded', createApp);
+
 })();
