@@ -122,23 +122,25 @@
             while (switching) {
                 switching = false;
                 rows = document.querySelectorAll('tr');
-                for (index = 1; index < (rows.length - 1); index++) {
+
+                for (index = 1; index < rows.length - 1; index++) {
                     shouldSwitch = false;
                     let first_row = rows[index].getElementsByTagName('td')[indexSort];
                     let second_row = rows[index + 1].getElementsByTagName('td')[indexSort];
-                    if (sort === 'text') {
+                    if (sort === "text") {
                         if (sortText(first_row, second_row)) {
                             shouldSwitch = true;
                             break;
                         }
                     }
-                    if (sort === 'education') {
+                    if (sort === "education") {
                         if (sortYearEducation(first_row, second_row)) {
                             shouldSwitch = true;
                             break;
                         }
                     }
                 }
+
                 if (shouldSwitch) {
                     rows[index].parentNode.insertBefore(rows[index + 1], rows[index]);
                     switching = true;
