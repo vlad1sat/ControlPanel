@@ -112,6 +112,7 @@
 
         createdTable.full_name.buttonFilter.addEventListener('click', () => sortTable(0, 'text'));
         createdTable.faculty.buttonFilter.addEventListener('click', () => sortTable(1, 'text'));
+        createdTable.dateBorn.buttonFilter.addEventListener('click', () => sortTable(2, 'date'));
         createdTable.yearStartEducation.buttonFilter.addEventListener('click', () => sortTable(3, 'education'));
 
         function sortTable(indexSort, sort) {
@@ -123,22 +124,32 @@
                 switching = false;
                 rows = document.querySelectorAll('tr');
 
-                for (index = 1; index < rows.length - 1; index++) {
+                rangeRows: for (index = 1; index < rows.length - 1; index++) {
                     shouldSwitch = false;
                     let first_row = rows[index].getElementsByTagName('td')[indexSort];
                     let second_row = rows[index + 1].getElementsByTagName('td')[indexSort];
-                    if (sort === "text") {
-                        if (sortText(first_row, second_row)) {
-                            shouldSwitch = true;
+                    switch (sort) {
+                        case 'text':
+                            if (sortText(first_row, second_row)) {
+                                shouldSwitch = true;
+                                break rangeRows;
+                            }
+                            break;
+                        case 'education':
+                            if (sortYearEducation(first_row, second_row)) {
+                                shouldSwitch = true;
+                                break rangeRows;
+                            }
+                            break;
+                        case 'date':
+                            let first_date = new Date(first_row.textContent.split(' ')[0]);
+                            let second_date = new Date(second_row.textContent.split(' ')[0]);
+                            if (first_date < second_date) {
+                                shouldSwitch = true;
+                                break rangeRows;
+                            }
                             break;
                         }
-                    }
-                    if (sort === "education") {
-                        if (sortYearEducation(first_row, second_row)) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    }
                 }
 
                 if (shouldSwitch) {
