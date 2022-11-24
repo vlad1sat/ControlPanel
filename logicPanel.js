@@ -2,39 +2,77 @@
     function createForm() {
         const form = document.createElement('form');
         const button = document.createElement('button');
-        const input = document.createElement('input');
+        const inputFullName = createBaseElementForm('ФИО', 'Введите ФИО');
+        const inputFaculty = createBaseElementForm('Факультет', 'Введите ваш факультет');
+        const inputYearEducation = createBaseElementForm('Год обучения', 'Введите начало вашего обучения');
         const inputDate = document.createElement('input');
+        const divInputDate = document.createElement('div');
+        const dataBorn = document.createElement('label');
         const buttonWrapper = document.createElement('div');
 
-        button.disabled = true;
-        inputDate.type = "date";
-        form.classList.add('input-group', 'mb-3');
-        input.classList.add('form-control');
-        inputDate.classList.add('form-control');
-        input.placeholder = "Введите данные студента (ФИО, Факультет, Год поступления)";
-        button.classList.add('btn', 'btn-primary');
-        button.textContent = "Добавить студента";
-        buttonWrapper.classList.add('input-group-append');
-
+        addStyles();
         buttonWrapper.append(button);
-        form.append(input, inputDate, buttonWrapper);
+        form.append(inputFullName.divInput, inputFaculty.divInput,
+            inputYearEducation.divInput, divInputDate, buttonWrapper);
 
-        input.addEventListener('input', function(e) {
-            e.preventDefault();
-            let isCorrectSymbol = false;
+        function createBaseElementForm(textTitle, prompt) {
+            const input = document.createElement('input');
+            const divInput = document.createElement('div');
+            const textName = document.createElement('label');
 
-            for (const symbol of input.value)
-                if (symbol !== ' ') {
-                    isCorrectSymbol = true;
-                    break;
-                }
+            divInput.style.margin = '5px 15% 10px 15%';
+            textName.style.paddingLeft = '10px';
+            textName.textContent = textTitle;
+            textName.style.fontWeight = 'bold';
+            input.classList.add('form-control');
+            input.placeholder = prompt;
+            divInput.append(textName, input);
 
-            button.disabled = input.value.length === 0 || !isCorrectSymbol;
-        })
+            input.addEventListener('input', function(e) {
+                e.preventDefault();
+                let isCorrectSymbol = false;
+
+                for (const symbol of input.value)
+                    if (symbol !== ' ') {
+                        isCorrectSymbol = true;
+                        break;
+                    }
+
+                button.disabled = input.value.length === 0 || !isCorrectSymbol;
+            })
+
+            return {
+                divInput,
+                input
+            };
+        }
+
+        function addStyles() {
+            button.disabled = true;
+            inputDate.type = "date";
+            inputYearEducation.input.type = "number";
+            dataBorn.textContent = "Дата рождения";
+            dataBorn.style.fontWeight = 'bold';
+            dataBorn.style.paddingLeft = '10px';
+            divInputDate.style.margin = '10px 15% 10px 15%';
+            divInputDate.append(dataBorn, inputDate);
+            form.classList.add('mb-3');
+            form.style.paddingTop = '15px';
+            form.style.margin = '10px 30% 0 30%';
+            form.style.border = '1px solid #AFAFAF';
+            form.style.borderRadius = '30px';
+            inputDate.classList.add('form-control');
+            button.style.margin = '10px 25% 20px 35%';
+            button.classList.add('btn', 'btn-primary');
+            button.textContent = "Добавить студента";
+            buttonWrapper.classList.add('input-group-append');
+        }
 
         return {
             form,
-            input,
+            fullName: inputFullName.input,
+            faculty: inputFaculty.input,
+            yearEducation: inputYearEducation.input,
             inputDate,
             button
         };
@@ -57,6 +95,7 @@
             buttonFilter.classList.add('btn');
             element.append(buttonFilter);
             first_row.append(element);
+
             return {
                 element,
                 buttonFilter
@@ -77,36 +116,44 @@
         };
     }
 
+    function createTitle() {
+        const nameSite = document.createElement('h1');
+
+        nameSite.textContent = 'Информация о студентаx';
+        nameSite.style.paddingBottom = '20px';
+        nameSite.style.fontSize = '35px';
+        nameSite.style.marginLeft = '35%';
+
+        return nameSite;
+    }
+
     function createApp() {
+        const nameSite = createTitle();
         const user_form = createForm();
         const createdTable = createTable();
-        document.body.append(user_form.form, createdTable.table);
+        document.body.append(nameSite, user_form.form, createdTable.table);
 
         user_form.form.addEventListener('submit', e => {
             e.preventDefault();
             const row = document.createElement('tr');
             let nowDate = Date.now();
             nowDate = new Date(nowDate);
-            const user_information = parseInput();
-            const year_start = user_information[user_information.length - 1];
-            const user_date = user_form.inputDate.valueAsDate;
+            const fullName = parseInput(user_form.fullName);
+            const faculty = parseInput(user_form.faculty);
+            const yearStart = Number(user_form.yearEducation.value);
+            const userDate = user_form.inputDate.valueAsDate;
 
-            if (user_information.length !== 5 || user_date === null || user_date.getFullYear() < 1900
-                || isNaN(Number(year_start))
-                || Number(year_start) < 2000
-                || Number(year_start) > nowDate.getFullYear()) {
+            if (fullName.length !== 3 || userDate === null || userDate.getFullYear() < 1900
+                || yearStart < 2000
+                || yearStart > nowDate.getFullYear()) {
                 confirm("Некорректно введены данные!")
                 return;
             }
 
-            let fullName = "";
-            for (let indexElement = 0; indexElement < 3; indexElement++)
-                    fullName += user_information[indexElement] + ' ';
-
-            createInformation(fullName, row);
-            createInformation(user_information[3], row);
+            createInformation(fullName.join(' '), row);
+            createInformation(faculty.join(' '), row);
             createYearUser(nowDate, row);
-            createEducationUser(user_information[4], nowDate, row);
+            createEducationUser(yearStart, nowDate, row);
             createdTable.body_table.append(row);
         })
 
@@ -176,6 +223,7 @@
                 age--;
                 isBirthday = false;
             }
+
             if (nowDate.getMonth() === user_form.inputDate.valueAsDate.getMonth() && isBirthday) {
                 if (nowDate.getDate() < user_form.inputDate.valueAsDate.getDate())
                     age--;
@@ -186,14 +234,13 @@
         }
 
         function createEducationUser(year, nowDate, row) {
-            const start_year = Number(year);
             const end_year = Number(year) + 4;
-            let education = String(start_year) + '-' + String(end_year) + ' ';
+            let education = String(year) + '-' + String(end_year) + ' ';
 
             if (nowDate.getFullYear() >= end_year)
                 education += "(закончил)";
             else
-                education += `(${nowDate.getFullYear() - start_year + 1} курс)`;
+                education += `(${nowDate.getFullYear() - year + 1} курс)`;
 
             createInformation(education, row);
         }
@@ -205,8 +252,8 @@
             return element;
         }
 
-        function parseInput() {
-            return user_form.input.value
+        function parseInput(inputInformation) {
+            return inputInformation.value
                 .replace(/\s+/g, ' ')
                 .trim()
                 .split(' ');
