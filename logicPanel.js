@@ -10,7 +10,7 @@
         const dataBorn = document.createElement('label');
         const buttonWrapper = document.createElement('div');
 
-        addStyles();
+        createStyleApp();
         buttonWrapper.append(button);
         form.append(inputFullName.divInput, inputFaculty.divInput,
             inputYearEducation.divInput, divInputDate, buttonWrapper);
@@ -20,12 +20,11 @@
             const divInput = document.createElement('div');
             const textName = document.createElement('label');
 
-            divInput.style.margin = '5px 15% 10px 15%';
-            textName.style.paddingLeft = '10px';
             textName.textContent = textTitle;
-            textName.style.fontWeight = 'bold';
-            input.classList.add('form-control');
             input.placeholder = prompt;
+            divInput.classList.add('block-form');
+            textName.classList.add('text-form');
+            input.classList.add('form-control');
             divInput.append(textName, input);
 
             input.addEventListener('input', function(e) {
@@ -47,22 +46,17 @@
             };
         }
 
-        function addStyles() {
+        function createStyleApp() {
             button.disabled = true;
             inputDate.type = "date";
             inputYearEducation.input.type = "number";
             dataBorn.textContent = "Дата рождения";
-            dataBorn.style.fontWeight = 'bold';
-            dataBorn.style.paddingLeft = '10px';
-            divInputDate.style.margin = '10px 15% 10px 15%';
+            dataBorn.classList.add('text-form');
+            divInputDate.classList.add('block-form');
             divInputDate.append(dataBorn, inputDate);
-            form.classList.add('mb-3');
-            form.style.paddingTop = '15px';
-            form.style.margin = '10px 30% 0 30%';
-            form.style.border = '1px solid #AFAFAF';
-            form.style.borderRadius = '30px';
+            form.classList.add('mb-3', 'form-style');
             inputDate.classList.add('form-control');
-            button.style.margin = '10px 25% 20px 35%';
+            button.classList.add('button-form');
             button.classList.add('btn', 'btn-primary');
             button.textContent = "Добавить студента";
             buttonWrapper.classList.add('input-group-append');
@@ -118,12 +112,8 @@
 
     function createTitle() {
         const nameSite = document.createElement('h1');
-
         nameSite.textContent = 'Информация о студентаx';
-        nameSite.style.paddingBottom = '20px';
-        nameSite.style.fontSize = '35px';
-        nameSite.style.marginLeft = '35%';
-
+        nameSite.classList.add('main-text');
         return nameSite;
     }
 
@@ -167,31 +157,40 @@
             let switching = true;
             let index = 1;
 
+            const sortText = (firstRow, secondRow) => firstRow.textContent.toLowerCase() > secondRow.textContent.toLowerCase();
+
+            const sortYearEducation = (firstRow, secondRow) => Number(firstRow.textContent.split(' ')[0].split('-')[0])
+                > Number(secondRow.textContent.split(' ')[0].split('-')[0]);
+
+            const sortDateBorn = (firstRow, secondRow) => {
+                let firstDate = new Date(firstRow.textContent.split(' ')[0]);
+                let secondDate = new Date(secondRow.textContent.split(' ')[0]);
+                return firstDate < secondDate;
+            }
+
             while (switching) {
                 switching = false;
                 rows = document.querySelectorAll('tr');
 
                 rangeRows: for (index = 1; index < rows.length - 1; index++) {
                     shouldSwitch = false;
-                    let first_row = rows[index].getElementsByTagName('td')[indexSort];
-                    let second_row = rows[index + 1].getElementsByTagName('td')[indexSort];
+                    let firstRow = rows[index].getElementsByTagName('td')[indexSort];
+                    let secondRow = rows[index + 1].getElementsByTagName('td')[indexSort];
                     switch (sort) {
                         case 'text':
-                            if (sortText(first_row, second_row)) {
+                            if (sortText(firstRow, secondRow)) {
                                 shouldSwitch = true;
                                 break rangeRows;
                             }
                             break;
                         case 'education':
-                            if (sortYearEducation(first_row, second_row)) {
+                            if (sortYearEducation(firstRow, secondRow)) {
                                 shouldSwitch = true;
                                 break rangeRows;
                             }
                             break;
                         case 'date':
-                            let first_date = new Date(first_row.textContent.split(' ')[0]);
-                            let second_date = new Date(second_row.textContent.split(' ')[0]);
-                            if (first_date < second_date) {
+                            if (sortDateBorn(firstRow, secondRow)) {
                                 shouldSwitch = true;
                                 break rangeRows;
                             }
@@ -203,15 +202,6 @@
                     rows[index].parentNode.insertBefore(rows[index + 1], rows[index]);
                     switching = true;
                 }
-            }
-
-            function sortText(first_row, second_row) {
-                return first_row.textContent.toLowerCase() > second_row.textContent.toLowerCase();
-            }
-
-            function sortYearEducation(first_row, second_row) {
-                return Number(first_row.textContent.split(' ')[0].split('-')[0])
-                > Number(second_row.textContent.split(' ')[0].split('-')[0]);
             }
         }
 

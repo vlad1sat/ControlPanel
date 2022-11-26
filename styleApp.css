@@ -1,0 +1,27 @@
+.block-form {
+    margin: 5px 15% 10px 15%;
+}
+
+.text-form {
+    padding-left: 10px;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.form-style {
+    padding-top: 15px;
+    margin: 10px 30% 0 30%;
+    border: 1px solid #AFAFAF;
+    border-radius: 30px;
+}
+
+.button-form {
+    margin: 10px 25% 20px 35%;
+}
+
+.main-text {
+    padding-bottom: 20px;
+    padding-top: 10px;
+    font-size: 35px;
+    margin-left: 37%;
+}
