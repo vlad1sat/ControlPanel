@@ -76,10 +76,10 @@ function createForm() {
     const head_table = document.createElement('thead');
     const body_table = document.createElement('tbody');
     const first_row = document.createElement('tr');
-    let full_name = createInformationTable("ФИО");
-    let faculty = createInformationTable("Факультет");
-    let dateBorn = createInformationTable("Дата рождения и возраст");
-    let yearStartEducation = createInformationTable("Годы обучения и номер курса");
+    const full_name = createInformationTable("ФИО");
+    const faculty = createInformationTable("Факультет");
+    const dateBorn = createInformationTable("Дата рождения и возраст");
+    const yearStartEducation = createInformationTable("Годы обучения и номер курса");
 
     function createInformationTable(title) {
         const element = document.createElement('th');
