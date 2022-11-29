@@ -55,8 +55,7 @@ function createForm() {
         divInputDate.append(dataBorn, inputDate);
         form.classList.add('mb-3', 'form-style');
         inputDate.classList.add('form-control');
-        button.classList.add('button-form');
-        button.classList.add('btn', 'btn-primary');
+        button.classList.add('button-form', 'btn', 'btn-primary');
         button.textContent = "Добавить студента";
         buttonWrapper.classList.add('input-group-append');
     }
