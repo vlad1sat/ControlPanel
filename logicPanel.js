@@ -1,3 +1,5 @@
+let studentData = [];
+
 function createForm() {
     const form = document.createElement('form');
     const button = document.createElement('button');
@@ -75,6 +77,7 @@ function createForm() {
     const head_table = document.createElement('thead');
     const body_table = document.createElement('tbody');
     const first_row = document.createElement('tr');
+    body_table.id = 'table-body';
     const full_name = createInformationTable("ФИО");
     const faculty = createInformationTable("Факультет");
     const dateBorn = createInformationTable("Дата рождения и возраст");
@@ -126,8 +129,8 @@ function createApp() {
         const row = document.createElement('tr');
         let nowDate = Date.now();
         nowDate = new Date(nowDate);
-        const fullName = parseInput(user_form.fullName);
-        const faculty = parseInput(user_form.faculty);
+        let fullName = parseInput(user_form.fullName);
+        const faculty = parseInput(user_form.faculty).join(' ');
         const yearStart = Number(user_form.yearEducation.value);
         const userDate = user_form.inputDate.valueAsDate;
 
@@ -137,87 +140,54 @@ function createApp() {
             confirm("Некорректно введены данные!")
             return;
         }
+        fullName = fullName.join(' ');
+        studentData.push({fullName, faculty, yearStart, userDate});
 
-        createInformation(fullName.join(' '), row);
-        createInformation(faculty.join(' '), row);
-        createYearUser(nowDate, row);
+        createInformation(fullName, row);
+        createInformation(faculty, row);
+        createYearUser(userDate, nowDate, row);
         createEducationUser(yearStart, nowDate, row);
-        createdTable.body_table.append(row);
+        createdTable.body_table.appendChild(row);
     })
 
-    createdTable.full_name.buttonFilter.addEventListener('click', () => sortTable(0, 'text'));
-    createdTable.faculty.buttonFilter.addEventListener('click', () => sortTable(1, 'text'));
-    createdTable.dateBorn.buttonFilter.addEventListener('click', () => sortTable(2, 'date'));
-    createdTable.yearStartEducation.buttonFilter.addEventListener('click', () => sortTable(3, 'education'));
+    createdTable.full_name.buttonFilter.addEventListener('click', () => sortTable('fullName'));
+    createdTable.faculty.buttonFilter.addEventListener('click', () => sortTable('faculty'));
+    createdTable.dateBorn.buttonFilter.addEventListener('click', () => sortTable('userDate'));
+    createdTable.yearStartEducation.buttonFilter.addEventListener('click', () => sortTable('yearStart'));
 
-    function sortTable(indexSort, sort) {
-        let rows, shouldSwitch;
-        let switching = true;
-        let index = 1;
-
-        const sortText = (firstRow, secondRow) => firstRow.textContent.toLowerCase() > secondRow.textContent.toLowerCase();
-
-        const sortYearEducation = (firstRow, secondRow) => Number(firstRow.textContent.split(' ')[0].split('-')[0])
-            > Number(secondRow.textContent.split(' ')[0].split('-')[0]);
-
-        const sortDateBorn = (firstRow, secondRow) => {
-            const firstDate = new Date(firstRow.textContent.split(' ')[0]);
-            const secondDate = new Date(secondRow.textContent.split(' ')[0]);
-            return firstDate < secondDate;
-        }
-
-        while (switching) {
-            switching = false;
-            rows = document.querySelectorAll('tr');
-
-            rangeRows: for (index = 1; index < rows.length - 1; index++) {
-                shouldSwitch = false;
-                const firstRow = rows[index].getElementsByTagName('td')[indexSort];
-                const secondRow = rows[index + 1].getElementsByTagName('td')[indexSort];
-                switch (sort) {
-                    case 'text':
-                        if (sortText(firstRow, secondRow)) {
-                            shouldSwitch = true;
-                            break rangeRows;
-                        }
-                        break;
-                    case 'education':
-                        if (sortYearEducation(firstRow, secondRow)) {
-                            shouldSwitch = true;
-                            break rangeRows;
-                        }
-                        break;
-                    case 'date':
-                        if (sortDateBorn(firstRow, secondRow)) {
-                            shouldSwitch = true;
-                            break rangeRows;
-                        }
-                        break;
-                }
-            }
-
-            if (shouldSwitch) {
-                rows[index].parentNode.insertBefore(rows[index + 1], rows[index]);
-                switching = true;
-            }
-        }
+    function sortTable(sort) {
+        const bodyTable = document.querySelector('#table-body');
+        const elementsTable = Array.from(bodyTable.children);
+        elementsTable.forEach(elementTable => {
+            elementTable.remove();
+        });
+        studentData.sort((first_student, second_student) => first_student[sort] > second_student[sort] ? 1: -1);
+        studentData.forEach(student => {
+            const row = document.createElement('tr');
+            let nowDate = Date.now();
+            nowDate = new Date(nowDate);
+            createInformation(student.fullName, row);
+            createInformation(student.faculty, row);
+            createYearUser(student.userDate, nowDate, row);
+            createEducationUser(student.yearStart, nowDate, row);
+            bodyTable.appendChild(row);
+        });
     }
 
-    function createYearUser(nowDate, row) {
-        let age = nowDate.getFullYear() - user_form.inputDate.valueAsDate.getFullYear();
+    function createYearUser(userData, nowDate, row) {
+        let age = nowDate.getFullYear() - userData.getFullYear();
         let isBirthday = true;
 
-        if (nowDate.getMonth() < user_form.inputDate.valueAsDate.getMonth()) {
+        if (nowDate.getMonth() < userData.getMonth()) {
             age--;
             isBirthday = false;
         }
 
-        if (nowDate.getMonth() === user_form.inputDate.valueAsDate.getMonth() && isBirthday) {
-            if (nowDate.getDate() < user_form.inputDate.valueAsDate.getDate())
-                age--;
+        if (nowDate.getMonth() === userData.getMonth() && isBirthday) {
+            if (nowDate.getDate() < userData.getDate()) age--;
         }
 
-        const dateAge = `${user_form.inputDate.value} (${age} лет)`;
+        const dateAge = `${userData.getDate()}-${userData.getMonth()}-${userData.getFullYear()} (${age} лет)`;
         createInformation(dateAge, row);
     }
 
